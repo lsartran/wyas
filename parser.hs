@@ -10,6 +10,9 @@ data LispVal =  Atom String
             |   Bool Bool
             deriving (Show)
 
+charToString :: Char -> String
+charToString = flip (:) []
+
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
@@ -18,7 +21,7 @@ spaces = skipMany1 space
 
 parseStringElement :: Parser String
 parseStringElement = do
-    string "\\\"" <|> string "\\\\" <|> (liftM (flip (:) []) $ noneOf "\"")
+    try (string "\\\"") <|> try (string "\\\\") <|> (liftM charToString $ noneOf "\"")
 
 parseString :: Parser LispVal
 parseString = do
