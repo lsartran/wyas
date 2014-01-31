@@ -16,11 +16,15 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 spaces :: Parser ()
 spaces = skipMany1 space
 
+parseStringElement :: Parser String
+parseStringElement = do
+    string "\\\"" <|> string "\\\\" <|> (liftM (flip (:) []) $ noneOf "\"")
+
 parseString :: Parser LispVal
 parseString = do
-    char '"'
-    x <- many $ noneOf "\""
-    char '"'
+    string "\""
+    x <- (liftM concat) $ many parseStringElement
+    string "\""
     return $ String x
 
 parseAtom :: Parser LispVal
